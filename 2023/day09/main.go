@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -31,7 +32,6 @@ func extrapolate(nums []int) int {
 				next = append(next, row[j+1]-row[j])
 			}
 		}
-		fmt.Println(next)
 		rows = append(rows, next)
 		i += 1
 	}
@@ -39,10 +39,8 @@ func extrapolate(nums []int) int {
 	for i > 0 {
 		len := len(rows[i])
 		rows[i-1] = append(rows[i-1], rows[i-1][len-1]+rows[i][len-1])
-		fmt.Println(rows[i])
 		i -= 1
 	}
-	fmt.Println(rows[0])
 	return rows[0][len(rows[0])-1]
 }
 
@@ -54,7 +52,7 @@ func main() {
 		panic(err)
 	}
 
-	c := 0
+	c, c2 := 0, 0
 
 	for _, line := range lines {
 		fields := strings.Fields(line)
@@ -65,9 +63,11 @@ func main() {
 				panic(err)
 			}
 		}
-		fmt.Println(nums)
 		c += extrapolate(nums)
+		slices.Reverse(nums)
+		c2 += extrapolate(nums)
 	}
 
 	fmt.Println("Part 1: the sum of the extrapolated values is", c)
+	fmt.Println("Part 2: the sum of the extrapolated values is", c2)
 }
