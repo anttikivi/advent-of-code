@@ -2,10 +2,16 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/anttikivi/advent-of-code/2023/utils"
 )
+
+type point struct {
+	x int
+	y int
+}
 
 func findFirst(sketch []string, x, y int) (int, int) {
 	var nextX, nextY int
@@ -96,8 +102,12 @@ func main() {
 	lastX, lastY := x, y
 	x, y = findFirst(sketch, x, y)
 
+	var shape []point
+	shape = append(shape, point{lastX, lastY})
 	current := rune(sketch[y][x])
 	steps := 1
+
+	shape = append(shape, point{x, y})
 
 	for current != 'S' {
 		nx, ny := findNext(sketch, x, y, lastX, lastY)
@@ -105,7 +115,28 @@ func main() {
 		x, y = nx, ny
 		current = rune(sketch[y][x])
 		steps += 1
+		shape = append(shape, point{x, y})
 	}
 
 	fmt.Println("Part 1: the farthest point is", int(steps>>1), "steps away")
+
+	// Use shoelace formula to calculate the total area of the shape.
+	sum := 0
+	len := len(shape)
+
+	for i := 0; i < len-1; i++ {
+		p1 := shape[i]
+		p2 := shape[(i+1)%len]
+		sum += (p1.x * p2.y) - (p1.y * p2.x)
+	}
+	area := math.Abs(float64(sum >> 1))
+
+	// Use Pick's theorem to calculate the tiles enclosed by the shape.
+	// The formula is A = I + B/2 - 1, where A is the area of the shape,
+	// I is the number of tiles inside the shape and B is the number of
+	// tiles on the boundary of the shape. Thus I = A - B/2 + 1.
+
+	tiles := int(area) - (len >> 1) + 1
+
+	fmt.Println("Part 2: the shape encloses", tiles, "tiles")
 }
