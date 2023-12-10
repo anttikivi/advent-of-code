@@ -107,5 +107,5 @@ func main() {
 		steps += 1
 	}
 
-	fmt.Println("Part 1: the farthest point is", int(steps/2), "steps away")
+	fmt.Println("Part 1: the farthest point is", int(steps>>1), "steps away")
 }
