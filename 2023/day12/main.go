@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -19,6 +20,14 @@ const (
 type record struct {
 	springs []spring
 	counts  []int
+}
+
+func sum(a []int) int {
+	sum := 0
+	for _, n := range a {
+		sum += n
+	}
+	return sum
 }
 
 func (r *record) isValid() bool {
@@ -69,14 +78,7 @@ func (r *record) countArrangements() int {
 	return 0
 }
 
-func main() {
-	fmt.Println("Advent of Code 2023, Day 12")
-
-	lines, err := utils.ReadLines("input.txt")
-	if err != nil {
-		panic(err)
-	}
-
+func parse(lines []string) []record {
 	records := make([]record, 0, len(lines))
 
 	for _, line := range lines {
@@ -89,6 +91,8 @@ func main() {
 				rec.springs = append(rec.springs, damaged)
 			} else if c == '?' {
 				rec.springs = append(rec.springs, unknown)
+			} else {
+				panic("invalid input")
 			}
 		}
 		for _, c := range strings.Split(parts[1], ",") {
@@ -101,10 +105,97 @@ func main() {
 		records = append(records, rec)
 	}
 
+	return records
+}
+
+func countInnerArrangements(springs []spring, counts []int, cache [][]*int) int {
+	if len(counts) == 0 {
+		if slices.Contains(springs, damaged) {
+			return 0
+		}
+		return 1
+	}
+
+	if len(springs) < sum(counts)+len(counts) {
+		return 0
+	}
+
+	if cache[len(counts)-1][len(springs)-1] != nil {
+		return *cache[len(counts)-1][len(springs)-1]
+	}
+
+	arrangements := 0
+
+	if springs[0] != damaged {
+		arrangements += countInnerArrangements(springs[1:], counts, cache)
+	}
+
+	nextGroupSize := counts[0]
+
+	if !slices.Contains(springs[:nextGroupSize], operational) && springs[nextGroupSize] != damaged {
+		arrangements += countInnerArrangements(springs[nextGroupSize+1:], counts[1:], cache)
+	}
+
+	cache[len(counts)-1][len(springs)-1] = &arrangements
+
+	return arrangements
+}
+
+func countUnfoldedArrangements(springs []spring, counts []int) int {
+	// Add an operational spring at the end to simplify the recursion.
+	springs = append(springs, operational)
+
+	cache := make([][]*int, len(counts))
+	for i := range cache {
+		cache[i] = make([]*int, len(springs))
+	}
+
+	return countInnerArrangements(springs, counts, cache)
+}
+
+func part2(input string) int {
+	lines, err := utils.ReadLines(input)
+	if err != nil {
+		panic(err)
+	}
+
+	records := parse(lines)
+	sum := 0
+
+	for _, r := range records {
+		e := record{make([]spring, 0, len(r.springs)*5+4), make([]int, 0, len(r.counts)*5)}
+		for i := 0; i < 5; i++ {
+			if i > 0 {
+				e.springs = append(e.springs, unknown)
+			}
+			e.springs = append(e.springs, r.springs...)
+		}
+		for i := 0; i < 5; i++ {
+			e.counts = append(e.counts, r.counts...)
+		}
+		sum += countUnfoldedArrangements(e.springs, e.counts)
+	}
+
+	return sum
+}
+
+func main() {
+	fmt.Println("Advent of Code 2023, Day 12")
+
+	input := "input.txt"
+
+	lines, err := utils.ReadLines(input)
+	if err != nil {
+		panic(err)
+	}
+
+	records := parse(lines)
+
 	sum := 0
 	for _, rec := range records {
 		sum += rec.countArrangements()
 	}
 
 	fmt.Println("Part 1: the total number of possible arrangements is", sum)
+	fmt.Println("Part 2: the total number of possible arrangements is", part2(input))
 }
