@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"slices"
+	"strings"
 
 	"github.com/anttikivi/advent-of-code/2023/utils"
 )
@@ -48,10 +51,55 @@ func reflect(pattern []string) int {
 	return n
 }
 
+func mirror(s []string, equal func([]string, []string) bool) int {
+	for i := 1; i < len(s); i++ {
+		l := slices.Min([]int{i, len(s) - i})
+		a, b := slices.Clone(s[i-l:i]), s[i:i+l]
+		slices.Reverse(a)
+		if equal(a, b) {
+			return i
+		}
+	}
+	return 0
+}
+
+func smudge(a, b []string) bool {
+	diffs := 0
+	for i := range a {
+		for j := range a[i] {
+			if a[i][j] != b[i][j] {
+				diffs++
+			}
+		}
+	}
+	return diffs == 1
+}
+
+func part2(file string) int {
+	input, err := os.ReadFile(file)
+	if err != nil {
+		panic("failed to read the file")
+	}
+
+	sum := 0
+	for _, s := range strings.Split(strings.TrimSpace(string(input)), "\n\n") {
+		rows, cols := []string{}, make([]string, len(strings.Fields(s)[0]))
+		for _, s := range strings.Fields(s) {
+			rows = append(rows, s)
+			for i, r := range s {
+				cols[i] += string(r)
+			}
+		}
+
+		sum += mirror(cols, smudge) + 100*mirror(rows, smudge)
+	}
+	return sum
+}
+
 func main() {
 	fmt.Println("Advent of Code 2023, Day 13")
 
-	input := "test.txt"
+	input := "input.txt"
 
 	lines, err := utils.ReadLines(input)
 	if err != nil {
@@ -62,7 +110,6 @@ func main() {
 	var current []string
 
 	for _, line := range lines {
-		fmt.Println(line)
 		if line == "" {
 			patterns = append(patterns, current)
 			current = make([]string, 0)
@@ -73,17 +120,15 @@ func main() {
 	patterns = append(patterns, current)
 
 	sum := 0
-	for _, pattern := range patterns {
-		fmt.Println("Checking pattern")
-		for _, line := range pattern {
-			fmt.Println(line)
-		}
-		n := reflect(pattern) * 100
+	for _, p := range patterns {
+		n := reflect(p) * 100
 		if n == 0 {
-			n = reflect(transpose(pattern))
+			n = reflect(transpose(p))
 		}
+
 		sum += n
 	}
 
 	fmt.Println("Part 1: the number from summarising the notes is", sum)
+	fmt.Println("Part 2: the number from summarising the notes is", part2(input))
 }
