@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"slices"
+	"sync"
 	"time"
 
 	"github.com/anttikivi/advent-of-code/2023/utils"
@@ -87,6 +89,21 @@ func getEnergy(contraption [][]tile, x, y int, d direction) int {
 	return e + getEnergy(contraption, x, y, d)
 }
 
+func cloneContraption(c [][]tile) [][]tile {
+	n := make([][]tile, len(c))
+	for i := range c {
+		n[i] = slices.Clone(c[i])
+	}
+	return n
+}
+
+func max(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func main() {
 	fmt.Println("Advent of Code 2023, Day 16")
 
@@ -113,4 +130,61 @@ func main() {
 
 	elapsed := time.Since(start)
 	fmt.Println("Part 1 ran in", elapsed)
+
+	start = time.Now()
+
+	contraption = make([][]tile, 0)
+	for _, line := range lines {
+		var row []tile
+		for _, c := range line {
+			row = append(row, tile{beams: 0, contents: c})
+		}
+		contraption = append(contraption, row)
+	}
+
+	c := make(chan int)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := range contraption {
+			c <- getEnergy(cloneContraption(contraption), 0, i, right)
+		}
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := range contraption {
+			c <- getEnergy(cloneContraption(contraption), len(contraption)-1, i, left)
+		}
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := range contraption[0] {
+			c <- getEnergy(cloneContraption(contraption), i, 0, down)
+		}
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := range contraption[0] {
+			c <- getEnergy(cloneContraption(contraption), i, len(contraption[0])-1, up)
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+		close(c)
+	}()
+
+	sum = 0
+	for n := range c {
+		sum = max(sum, n)
+	}
+
+	fmt.Println("Part 2:", sum, "tiles got energised")
+	elapsed = time.Since(start)
+	fmt.Println("Part 2 ran in", elapsed)
 }
