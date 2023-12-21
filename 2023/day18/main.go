@@ -23,8 +23,6 @@ func main() {
 
 	start := time.Now()
 
-	// It'll be no surprise that the colours are used in the second part but
-	// let's ignore it for now.
 	edge := make([]image.Point, 0, len(lines))
 	current := image.Pt(0, 0)
 	edge = append(edge, current)
@@ -68,4 +66,49 @@ func main() {
 
 	elapsed := time.Since(start)
 	fmt.Println("Part 1 ran for", elapsed)
+
+	start = time.Now()
+
+	edge = make([]image.Point, 0, len(lines))
+	current = image.Pt(0, 0)
+	edge = append(edge, current)
+	edgelen = 0
+	for _, line := range lines {
+		parts := strings.Fields(line)
+		hex := strings.TrimPrefix(strings.TrimSuffix(parts[2], ")"), "(#")
+		d, _ := strconv.Atoi(hex[len(hex)-1:])
+		n64, _ := strconv.ParseInt(hex[:len(hex)-1], 16, 64)
+		n := int(n64)
+		switch d {
+		case 0:
+			current.X += n
+		case 1:
+			current.Y += n
+		case 2:
+			current.X -= n
+		case 3:
+			current.Y -= n
+		}
+		edge = append(edge, current)
+		edgelen += n
+	}
+
+	sum, l = 0, len(edge)
+	for i := 0; i < l; i++ {
+		p1 := edge[i]
+		var p2 image.Point
+		if i == l-1 {
+			p2 = edge[0]
+		} else {
+			p2 = edge[i+1]
+		}
+		sum += (p1.X * p2.Y) - (p1.Y * p2.X)
+	}
+	sum = int(math.Abs(float64(sum >> 1)))
+	sum += edgelen>>1 + 1
+
+	fmt.Println("Part 2: the lagoon can hold a total of", sum, "cubic metres of lava")
+
+	elapsed = time.Since(start)
+	fmt.Println("Part 2 ran for", elapsed)
 }
