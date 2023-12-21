@@ -14,5 +14,5 @@ a different language each year.
 
 ## Licence
 
-The code is licensed under the MIT license. See the [`LICENSE`](LICENSE) file
-for more information.
+This code and software is released into the public domain. For more information,
+please see the [LICENSE](LICENSE) file.
