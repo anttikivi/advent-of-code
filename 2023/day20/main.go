@@ -3,6 +3,7 @@ package main
 import (
 	"container/list"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,18 @@ func resolveConjunctionPulse(conj map[string]bool) bool {
 	}
 	return true
 }
+
+func gcd(a, b int) int {
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
+
+func lcm(a, b int) int {
+	return a / gcd(a, b) * b
+}
+
 func main() {
 	fmt.Println("***    Advent of Code 2023    ***")
 	fmt.Println("--- Day 20: Pulse Propagation ---")
@@ -103,4 +116,50 @@ func main() {
 	fmt.Println("Part 1: the product of the low and high pulses is", prod)
 	elapsed := time.Since(start)
 	fmt.Println("Part 1 ran for", elapsed)
+
+	start = time.Now()
+
+	graph = make(map[string][]string)
+	for _, line := range lines {
+		parts := strings.Split(line, " -> ")
+		graph[parts[0]] = strings.Split(parts[1], ", ")
+	}
+
+	var results []int
+	for _, mod := range graph["broadcaster"] {
+		bin := ""
+		for {
+			ffdests := graph["%"+mod]
+			if len(ffdests) == 2 {
+				bin = "1" + bin
+			} else {
+				if _, ok := graph["%"+ffdests[0]]; !ok {
+					bin = "1" + bin
+				} else {
+					bin = "0" + bin
+				}
+			}
+			next := make([]string, 0)
+			for _, m := range graph["%"+mod] {
+				if _, ok := graph["%"+m]; ok {
+					next = append(next, m)
+				}
+			}
+			if len(next) == 0 {
+				break
+			}
+			mod = next[0]
+		}
+		v, _ := strconv.ParseInt(bin, 2, 64)
+		results = append(results, int(v))
+	}
+
+	presses := results[0]
+	for _, r := range results[1:] {
+		presses = lcm(presses, r)
+	}
+
+	fmt.Println("Part 2: the fewest number of button presses required to get a low pulse to 'rx' is", presses)
+	elapsed = time.Since(start)
+	fmt.Println("Part 2 ran for", elapsed)
 }
