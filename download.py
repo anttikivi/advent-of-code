@@ -3,10 +3,11 @@
 import argparse
 import os
 from os import path
-import requests
+
+import requests  # pyright: ignore [reportMissingModuleSource]
 
 
-def download_input(year, day, session):
+def download_input(year: int, day: int, session: str):
     print(f"Downloading input for day {day} of {year}")
     year_dir = path.join(path.dirname(__file__), str(year))
     if not path.exists(year_dir):
@@ -32,7 +33,7 @@ def download_input(year, day, session):
         print(f"Error downloading input for day {day}")
         return
     with open(input_file, "w") as f:
-        f.write(response.text)
+        _ = f.write(response.text)
 
 
 def main():
@@ -40,20 +41,24 @@ def main():
         prog="Advent of Code Downloader",
         description="Download your Advent of Code input.",
     )
-    parser.add_argument("-y", "--year", type=int, required=True)
-    parser.add_argument("-d", "--day", type=int)
-    parser.add_argument("-K", "--session", type=str, required=True)
+    _ = parser.add_argument("-y", "--year", type=int, required=True)
+    _ = parser.add_argument("-d", "--day", type=int)
+    _ = parser.add_argument("-K", "--session", type=str, required=True)
 
     args = parser.parse_args()
 
-    if not args.day:
+    if not args.day:  # pyright: ignore [reportAny]
         for day in range(1, 26):
-            download_input(args.year, day, args.session)
+            download_input(
+                args.year, day, args.session  # pyright: ignore [reportAny]
+            )
     else:
-        if args.day < 1 or args.day > 25:
+        if args.day < 1 or args.day > 25:  # pyright: ignore [reportAny]
             print("Day must be between 1 and 25")
             return
-        download_input(args.year, args.day, args.session)
+        download_input(
+            args.year, args.day, args.session  # pyright: ignore [reportAny]
+        )
 
 
 if __name__ == "__main__":
