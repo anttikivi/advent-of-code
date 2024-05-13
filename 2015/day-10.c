@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INPUT "***REMOVED***"
+// The header file has the input defined as a string literal.
+#include "input/input-10.h"
+
 #define PART_1_RUNS 40
 #define PART_2_RUNS 50
 

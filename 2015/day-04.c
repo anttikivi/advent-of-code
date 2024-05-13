@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INPUT "***REMOVED***"
+// The header file has the input defined as a string literal.
+#include "input/input-04.h"
 
 int main(void) {
   // Make the MD5 input large enough so it can hold the number when
