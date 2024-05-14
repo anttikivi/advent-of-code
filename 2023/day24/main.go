@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/big"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -18,39 +20,40 @@ type hailstone struct {
 	Px, Py, Pz, Vx, Vy, Vz int
 }
 
-func calculateDeterminant(m [][]int) int {
+func calculateDeterminant(m [][]*big.Int) *big.Int {
 	if len(m) == 0 {
-		return 1
+		return big.NewInt(1)
 	}
 
-	var (
-		l    = m[0]
-		r    = m[1:]
-		prod = make([]int, 0)
-	)
+	l := m[0]
+	r := m[1:]
+	rProduct := make([]*big.Int, 0)
 
 	for i, n := range l {
-		spliced := make([][]int, 0)
+		var spliced [][]*big.Int
 		for _, row := range r {
-			spliced = append(spliced, append([]int{}, row...))
+			var newRow []*big.Int
+			newRow = append(make([]*big.Int, 0), row[:i]...)
+			newRow = append(newRow, row[i+1:]...)
+			spliced = append(spliced, newRow)
 		}
-		for j := range spliced {
-			spliced[j] = append(spliced[j][:i], spliced[j][i+1:]...)
-		}
-		prod = append(prod, n*calculateDeterminant(spliced))
+		rProduct = append(
+			rProduct,
+			new(big.Int).Mul(n, calculateDeterminant(spliced)),
+		)
 	}
 
-	var det int
+	result := big.NewInt(0)
 
-	for i, n := range prod {
+	for i, b := range rProduct {
 		if i%2 == 0 {
-			det += n
+			result.Add(result, b)
 		} else {
-			det -= n
+			result.Sub(result, b)
 		}
 	}
 
-	return det
+	return result
 }
 
 func main() {
@@ -115,49 +118,101 @@ func main() {
 
 	start = time.Now()
 
-	a, b := make([][]int, 0), make([]int, 0)
+	var stones [][]*big.Int
+	for _, line := range lines {
+		numbers := regexp.MustCompile(`-?\d+`).FindAllString(line, -1)
+		var vals []*big.Int
+		for _, num := range numbers {
+			n := new(big.Int)
+			n.SetString(num, 10)
+			vals = append(vals, n)
+		}
+		stones = append(stones, vals)
+	}
+
+	a := make([][]*big.Int, 0)
+	b := make([]*big.Int, 0)
 
 	var (
-		px0 = hailstones[0].Px
-		py0 = hailstones[0].Py
-		pz0 = hailstones[0].Pz
-		vx0 = hailstones[0].Vx
-		vy0 = hailstones[0].Vy
-		vz0 = hailstones[0].Vz
+		px0 = stones[0][0]
+		py0 = stones[0][1]
+		pz0 = stones[0][2]
+		vx0 = stones[0][3]
+		vy0 = stones[0][4]
+		vz0 = stones[0][5]
 	)
 
 	for i := 1; i <= 3; i++ {
 		var (
-			pxN = hailstones[i].Px
-			pyN = hailstones[i].Py
-			pzN = hailstones[i].Pz
-			vxN = hailstones[i].Vx
-			vyN = hailstones[i].Vy
-			vzN = hailstones[i].Vz
+			pxN = stones[i][0]
+			pyN = stones[i][1]
+			pzN = stones[i][2]
+			vxN = stones[i][3]
+			vyN = stones[i][4]
+			vzN = stones[i][5]
 		)
-		a = append(a, []int{vy0 - vyN, vxN - vx0, 0, pyN - py0, px0 - pxN, 0})
-		b = append(b, px0*vy0-py0*vx0-pxN*vyN+pyN*vxN)
-		a = append(a, []int{vz0 - vzN, 0, vxN - vx0, pzN - pz0, 0, px0 - pxN})
-		b = append(b, px0*vz0-pz0*vx0-pxN*vzN+pzN*vxN)
+
+		a = append(a, []*big.Int{
+			new(big.Int).Sub(vy0, vyN),
+			new(big.Int).Sub(vxN, vx0),
+			big.NewInt(0),
+			new(big.Int).Sub(pyN, py0),
+			new(big.Int).Sub(px0, pxN),
+			big.NewInt(0),
+		})
+
+		t1 := new(big.Int).Mul(px0, vy0)
+		t2 := new(big.Int).Mul(py0, vx0)
+		t3 := new(big.Int).Mul(pxN, vyN)
+		t4 := new(big.Int).Mul(pyN, vxN)
+
+		// t1 - t2 - t3 + t4
+		bN := new(big.Int).Sub(t1, t2)
+		bN.Sub(bN, t3)
+		bN.Add(bN, t4)
+		b = append(b, bN)
+
+		a = append(a, []*big.Int{
+			new(big.Int).Sub(vz0, vzN),
+			big.NewInt(0),
+			new(big.Int).Sub(vxN, vx0),
+			new(big.Int).Sub(pzN, pz0),
+			big.NewInt(0),
+			new(big.Int).Sub(px0, pxN),
+		})
+
+		t1 = new(big.Int).Mul(px0, vz0)
+		t2 = new(big.Int).Mul(pz0, vx0)
+		t3 = new(big.Int).Mul(pxN, vzN)
+		t4 = new(big.Int).Mul(pzN, vxN)
+
+		// t1 - t2 - t3 + t4
+		bN = new(big.Int).Sub(t1, t2)
+		bN.Sub(bN, t3)
+		bN.Add(bN, t4)
+		b = append(b, bN)
 	}
 
-	det := calculateDeterminant(a)
-	blen := len(b)
-	var c []int
+	detA := calculateDeterminant(a)
+
+	var result []*big.Int
 	for i := range a {
-		bi := make([][]int, blen)
+		m := make([][]*big.Int, 0)
 		for j, row := range a {
-			bi[j] = append([]int{}, row...)
+			newRow := make([]*big.Int, 0)
+			newRow = append(newRow, row...)
+			newRow[i] = b[j]
+			m = append(m, newRow)
 		}
-		for j := range b {
-			bi[j][i] = b[j]
-		}
-		c = append(c, calculateDeterminant(bi)/det)
+
+		d := calculateDeterminant(m)
+		result = append(result, new(big.Int).Div(d, detA))
 	}
 
-	sum := c[0] + c[1] + c[2]
+	sum := new(big.Int).Add(result[0], result[1])
+	sum.Add(sum, result[2])
 
-	fmt.Println("Part 2: the sum of the initial coordinates is", sum)
+	fmt.Println("Part 2: the sum of coordinates of the initial position is", sum)
 
 	elapsed = time.Since(start)
 	fmt.Println("Part 2 ran for", elapsed)
