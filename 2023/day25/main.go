@@ -179,7 +179,6 @@ func main() {
 					for c := range nodes[n].connections {
 						// Don't follow edges if they're one of our three.
 						e := Edge{a: min(n, c), b: max(n, c)}
-						// edge := Edge{a: n, b: c}
 						if edges[i] == e || edges[j] == e || edges[k] == e {
 							continue
 						}
@@ -191,7 +190,7 @@ func main() {
 				if fillCount < len(nodes) {
 					// We got two groups!
 					groupSize = fillCount
-					goto endLoop // if Go had breaking out of outer loops I'd use that instead.
+					goto endLoop
 				}
 			}
 		}
