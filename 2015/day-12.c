@@ -6,8 +6,6 @@
 #include <string.h>
 #include <time.h>
 
-#define BUFFER_LENGTH 8
-
 int get_sum(cJSON* json) {
   int sum = 0;
 
@@ -51,7 +49,7 @@ int main(void) {
   clock_t start = clock();
 
   int sum = 0;
-  char buffer[BUFFER_LENGTH];
+  char buffer[8]; // This buffer should be large enough.
   int len = 0;
   char c;
 
