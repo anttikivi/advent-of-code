@@ -5,8 +5,10 @@
 #include <time.h>
 
 int main(void) {
-  printf("***   Advent of Code 2015    ***\n");
-  printf("--- Day 11: Corporate Policy ---\n");
+  printf("\n");
+  printf("***     Advent of Code 2015      ***\n");
+  printf("--- Day 12: JSAbacusFramework.io ---\n");
+  printf("\n");
 
   FILE* fp = fopen("input/day-12.txt", "r");
 
@@ -43,6 +45,8 @@ int main(void) {
   double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
 
   printf("Part 1 ran for %f seconds\n", elapsed);
+
+  printf("\n");
 
   start = clock();
 
