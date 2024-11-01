@@ -12,6 +12,17 @@ a different language each year.
 | [2022](2022/) | Python         |
 | [2023](2023/) | Go             |
 
+### Languages to Try
+
+Here a loose list of languages I think I’d like to try out in Advent of Code:
+
+- C++
+- Elixir
+- OCaml
+- Rust
+- Swift
+- Zig
+
 ## License
 
 This code and software is licensed under GLWTPL. For more information, please
