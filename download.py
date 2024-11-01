@@ -53,7 +53,7 @@ def main():
     )
     _ = parser.add_argument("-y", "--year", type=int, required=True)
     _ = parser.add_argument("-d", "--day", type=int)
-    _ = parser.add_argument("-s", "--separate", type=bool)
+    _ = parser.add_argument("-s", "--separate", type=bool, action="store_true")
     _ = parser.add_argument("-K", "--session", type=str, required=True)
 
     args = parser.parse_args()
