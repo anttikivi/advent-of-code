@@ -17,4 +17,5 @@ a different language each year.
 This code and software is licensed under GLWTPL. For more information, please
 see the [LICENSE](LICENSE) file.
 
-The cJSON library included in the 2015 solutions is licensed under the MIT License. The license is included in the source files.
+The cJSON library included in the 2015 solutions is licensed under the MIT
+License. The license is included in the source files.
