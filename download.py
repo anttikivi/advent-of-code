@@ -3,6 +3,7 @@
 import argparse
 import os
 from os import path
+from typing import cast
 
 import requests
 
@@ -57,23 +58,28 @@ def main():
 
     args = parser.parse_args()
 
-    if not args.day:  # pyright: ignore [reportAny]
+    args.day = cast(int, args.day)
+    args.year = cast(int, args.year)
+    args.separate = cast(bool, args.separate)
+    args.session = cast(str, args.session)
+
+    if not args.day:
         for day in range(1, 26):
             download_input(
-                args.year,  # pyright: ignore [reportAny]
+                args.year,
                 day,
-                args.separate,  # pyright: ignore [reportAny]
-                args.session,  # pyright: ignore [reportAny]
+                args.separate,
+                args.session,
             )
     else:
-        if args.day < 1 or args.day > 25:  # pyright: ignore [reportAny]
+        if args.day < 1 or args.day > 25:
             print("Day must be between 1 and 25")
             return
         download_input(
-            args.year,  # pyright: ignore [reportAny]
-            args.day,  # pyright: ignore [reportAny]
-            args.separate,  # pyright: ignore [reportAny]
-            args.session,  # pyright: ignore [reportAny]
+            args.year,
+            args.day,
+            args.separate,
+            args.session,
         )
 
 
