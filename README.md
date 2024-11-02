@@ -18,7 +18,9 @@ Here a loose list of languages I think I’d like to try out in Advent of Code:
 
 - C++
 - Elixir
+- Java
 - OCaml
+- Ruby
 - Rust
 - Swift
 - Zig
