@@ -17,6 +17,7 @@ a different language each year.
 Here a loose list of languages I think I’d like to try out in Advent of Code:
 
 - C++
+- C#
 - Elixir
 - Java
 - OCaml
