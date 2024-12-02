@@ -1,6 +1,7 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader},
+    time::Instant,
 };
 
 pub fn run() {
@@ -10,9 +11,10 @@ pub fn run() {
     let input_file = File::open("input/day-02.txt").expect("failed to read the input file");
     let reader = BufReader::new(input_file);
 
+    let start = Instant::now();
+
     let mut count = 0;
     for line in reader.lines().filter_map(|r| r.ok()) {
-        // println!("{}", line);
         let parts: Vec<i32> = line
             .split(" ")
             .map(|s| s.to_string().parse::<i32>().unwrap())
@@ -42,5 +44,8 @@ pub fn run() {
         }
     }
 
+    let d = start.elapsed();
+
     println!("Part 1: there are {} safe reports in total", count);
+    println!("Part 1 ran for {:?}", d);
 }

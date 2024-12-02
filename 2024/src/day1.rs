@@ -1,6 +1,7 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader},
+    time::Instant,
 };
 
 const SEPARATOR: &str = "   ";
@@ -11,6 +12,8 @@ pub fn run() {
 
     let input_file = File::open("input/day-01.txt").expect("failed to read the input file");
     let reader = BufReader::new(input_file);
+
+    let start = Instant::now();
 
     let mut lines: Vec<String> = Vec::with_capacity(1000);
     let mut left_nums: Vec<i32> = Vec::with_capacity(1000);
@@ -34,7 +37,12 @@ pub fn run() {
         sum += diff
     }
 
+    let d = start.elapsed();
+
     println!("Part 1: the total distance between the two lists is {sum}");
+    println!("Part 1 ran for {:?}", d);
+
+    let start = Instant::now();
 
     left_nums = Vec::with_capacity(1000);
     right_nums = Vec::with_capacity(1000);
@@ -53,5 +61,8 @@ pub fn run() {
             * u32::try_from(n).unwrap();
     }
 
+    let d = start.elapsed();
+
     println!("Part 2: the similarity score is {sum}");
+    println!("Part 2 ran for {:?}", d);
 }
