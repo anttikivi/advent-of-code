@@ -1,8 +1,8 @@
 use std::env;
 
-mod day1;
-mod day2;
-mod day3;
+mod day_01;
+mod day_02;
+mod day_03;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -13,9 +13,9 @@ fn main() {
     );
     let day_to_run = args[1].parse::<i32>().unwrap();
     match day_to_run {
-        1 => day1::run(),
-        2 => day2::run(),
-        3 => day3::run(),
+        1 => day_01::run(),
+        2 => day_02::run(),
+        3 => day_03::run(),
         _ => println!("No solution for day {day_to_run}"),
     }
 }
